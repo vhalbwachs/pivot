@@ -1,4 +1,8 @@
-var CSVToArray = function (strData, strDelimiter) {
+var app = {};
+
+app.data = undefined;
+
+app.CSVToArray = function (strData, strDelimiter) {
   strDelimiter = (strDelimiter || ",");
   var objPattern = new RegExp(
     ("(\\" + strDelimiter + "|\\r?\\n|\\r|^)" +
@@ -23,14 +27,32 @@ var CSVToArray = function (strData, strDelimiter) {
   return(arrData);
 }
 
-$(function(){
-  $('#process').on('click', function() {
-    var file = $('#file-upload').get(0).files[0];
-    var reader = new FileReader();
-    reader.onloadend = function(){
-      var data = CSVToArray(reader.result, ',');
-      console.log(data);
-    }
-    reader.readAsText(file);
+app.drawAvailableColHeaders = function(columnHeaders) {
+  var $availColHeadersList = $('#data-columns');
+  _.each(columnHeaders, function(columnHeader) {
+    var col = $('<li />').text(columnHeader)
+                         .addClass('list-group-item')
+    $availColHeadersList.append(col);
   });
-});
+}
+
+app.prepApp = function() {
+  var headers = this.data[0];
+  this.drawAvailableColHeaders(headers);
+}
+
+app.init = function(){
+  $(function(){
+    $('#process').on('click', function() {
+      var file = $('#file-upload').get(0).files[0];
+      var reader = new FileReader();
+      reader.onloadend = function(){
+        app.data = app.CSVToArray(reader.result, ',');
+        app.prepApp();
+      }
+      reader.readAsText(file);
+    });
+  });
+}
+
+app.init();
