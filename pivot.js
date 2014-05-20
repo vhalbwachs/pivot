@@ -53,6 +53,19 @@ app.rowSummarizer = function() {
   var summaryCols = _.filter(this.selectedColumns, function(colIndex) {
     return app.dataColumnTypes[colIndex] === 'summarizable';
   });
+
+  var returnedColOrder = _.union(attributeCols, summaryCols);
+
+  //empty object to store the map of the sums of all summarizable columns
+  var makeSumMap = function() {
+    var sumColNewObj = {};
+    // {2:0, 4:0}
+    _.each(summaryCols, function(colIndex) {
+      sumColNewObj[colIndex] = 0;
+    })
+    return sumColNewObj;
+  }
+
   _.each(this.data, function(row, index) {
     // only run if not the header row
     if (index) {
@@ -62,32 +75,32 @@ app.rowSummarizer = function() {
         if (collection.length === 1 || i === collection.length-1) {
           rowIdentifier += row[val];
         } else {
-          rowIdentifier += row[val] + "{}{}";
+          rowIdentifier += row[val] + ":::";
         }
       });
-
-      if(summaryMap[rowIdentifier]) {
-        summaryMap[rowIdentifier] += +row[summaryCols[0]];
-      } else {
-        summaryMap[rowIdentifier] = +row[summaryCols[0]];
+      // rowidentifier = NY:::Upgrade
+      if(!summaryMap[rowIdentifier]) {
+        summaryMap[rowIdentifier] = makeSumMap();
       }
-
+      _.each(summaryCols, function(col) {
+        summaryMap[rowIdentifier][col] += +row[col];
+      });
     }
-
   });
   _.each(summaryMap, function(summarizedTotal, rowIdentifier) {
-    var row = rowIdentifier.split("{}{}");
-    row.push(summarizedTotal);
+    var row = rowIdentifier.split(":::");
+    _.each(summaryMap[rowIdentifier], function(total, colIndex) {
+      row.push(total);
+    })
     result.push(row);
   });
-  console.log(result);
-  this.drawTable(result);
+  this.drawTable(result, returnedColOrder);
 }
 
-app.drawTable = function (tableArray) {
+app.drawTable = function (tableArray, returnedColOrder) {
   var $tbody = $('tbody').empty();
   var $thead = $('.colHeaders').empty();
-  _.each(this.selectedColumns, function(header) {
+  _.each(returnedColOrder, function(header) {
     $('<th />').text(app.data[0][header])
                .appendTo($thead);
   })
