@@ -124,13 +124,14 @@ app.drawTable = function (tableArray, returnedColOrder) {
   $('tr').on('click', function() {
     app.rowFilter = {};
     $('.info').removeClass('info');
-    $(this).addClass('info');
+    if(!$(this).parent().first().is('thead')){  
+      $(this).addClass('info');
+    }
     $(this).children().each(function(a,b){
       var cellVal = $(b).text();
       var correspondingCol = returnedColOrder[a];
       var correspondingColName = app.data[0][correspondingCol];
       var isAtt = app.dataColumnTypes[correspondingCol] === 'attribute' ? true : false;
-      console.log(cellVal, correspondingCol, correspondingColName, isAtt); 
       if (isAtt) {
         app.rowFilter[correspondingCol] = cellVal
       }
