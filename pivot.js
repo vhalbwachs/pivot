@@ -29,15 +29,18 @@ app.CSVToArray = function (strData, strDelimiter) {
   return(arrData);
 }
 
-app.drawAvailableColHeaders = function(columnHeaders) {
-  var $availColHeadersList = $('#data-columns');
-  _.each(columnHeaders, function(columnHeader, i) {
-    var col = $('<li />').text(columnHeader)
+app.drawAvailableColHeaders = function() {
+  var headers = _.range(this.data[0].length);
+  var availCols = _.difference(headers, this.selectedColumns)
+  console.log(availCols);
+  var $availColHeadersList = $('#data-columns').empty();
+  _.each(availCols, function(columnHeader, i) {
+    var col = $('<li />').text(app.data[0][columnHeader])
                          .addClass('list-group-item')
-                         .attr('data-colIndex', i)
+                         .attr('data-colIndex', columnHeader)
                          .on('click', function() {
-                           app.addColumn(i);
-                           col.detach();
+                           app.addColumn(columnHeader);
+                           col.hide();
                          });
     $availColHeadersList.append(col);
   });
@@ -98,11 +101,16 @@ app.rowSummarizer = function() {
 }
 
 app.drawTable = function (tableArray, returnedColOrder) {
+  this.drawAvailableColHeaders();
   var $tbody = $('tbody').empty();
   var $thead = $('.colHeaders').empty();
   _.each(returnedColOrder, function(header) {
     $('<th />').text(app.data[0][header])
-               .appendTo($thead);
+               .attr('data-colIndex', header)
+               .appendTo($thead)
+               .on('click', function() {
+                 app.removeCol($(this).attr('data-colIndex'));  
+               })
   })
   _.each(tableArray, function(row) {
     var $row = $('<tr />');
@@ -119,6 +127,11 @@ app.addColumn = function(colIndex) {
   this.rowSummarizer();
 }
 
+app.removeCol = function(colIndex) {
+  this.selectedColumns = _.without(this.selectedColumns, +colIndex);
+  this.rowSummarizer();
+}
+
 app.postDataLoadProcess = function() {
   var typeCheckRow = this.data[1];
   _.each(typeCheckRow, function(cell, index) {
@@ -128,8 +141,7 @@ app.postDataLoadProcess = function() {
      app.dataColumnTypes[index] = 'summarizable'
     }
   });
-  var headers = this.data[0];
-  this.drawAvailableColHeaders(headers);
+  this.drawAvailableColHeaders();
 }
 
 app.init = function(){
