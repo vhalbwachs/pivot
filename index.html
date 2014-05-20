@@ -8,30 +8,57 @@
   <script type="text/javascript" src="pivot.js"></script>
 </head>
 <body>
+  <div class="jumbotron">
+    <div class="container">
+      <h1>Summarizr</h1>
+    </div>
+  </div>
   <div class="container">
-    <input type='file' id="file-upload"/>
-    <button id="process">process</button>
 
     <div class="row">
+
       <div class="col-md-9">
-        <table id="output" class="table table-condensed table-hover">
-          <thead>
-          <tr class="colHeaders"></tr>
-          </thead>
-          <tbody>
-            
-          </tbody>
-        </table>
+
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title" style="display: inline">Summary Table</h3>
+            <button id="process" class="btn btn-primary btn-xs pull-right">Process</button>
+            <input type='file' id="file-upload" class="pull-right" style="display: inline" />
+          </div>
+          <table id="output" class="table table-condensed table-hover">
+            <thead>
+            <tr class="colHeaders"></tr>
+            </thead>
+            <tbody>
+              
+            </tbody>
+          </table>
+        </div>
+
       </div>
 
       <div class="col-md-3">
         <div class="panel panel-default">
           <!-- Default panel contents -->
-          <div class="panel-heading">Available Columns</div>
+          <div class="panel-heading">
+            <h3 class="panel-title">Available Columns</h3>
+          </div>
 
           <!-- List group -->
           <ul class="list-group" id="data-columns">
           </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12">      
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">Drilldown Report</h3>
+          </div>
+          <table id="sub-report" class="table table-condensed table-hover">
+          </table>
         </div>
       </div>
     </div>

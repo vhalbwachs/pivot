@@ -3,6 +3,7 @@ var app = {};
 app.data = undefined;
 app.dataColumnTypes = {};
 app.selectedColumns = [];
+app.rowFilter = {};
 
 app.CSVToArray = function (strData, strDelimiter) {
   strDelimiter = (strDelimiter || ",");
@@ -35,7 +36,7 @@ app.drawAvailableColHeaders = function() {
   console.log(availCols);
   var $availColHeadersList = $('#data-columns').empty();
   _.each(availCols, function(columnHeader, i) {
-    var col = $('<li />').text(app.data[0][columnHeader])
+    var col = $('<a />').text(app.data[0][columnHeader])
                          .addClass('list-group-item')
                          .attr('data-colIndex', columnHeader)
                          .on('click', function() {
@@ -119,6 +120,62 @@ app.drawTable = function (tableArray, returnedColOrder) {
                  .appendTo($row);
     });
     $row.appendTo($('tbody'));
+  });
+  $('tr').on('click', function() {
+    app.rowFilter = {};
+    $('.info').removeClass('info');
+    $(this).addClass('info');
+    $(this).children().each(function(a,b){
+      var cellVal = $(b).text();
+      var correspondingCol = returnedColOrder[a];
+      var correspondingColName = app.data[0][correspondingCol];
+      var isAtt = app.dataColumnTypes[correspondingCol] === 'attribute' ? true : false;
+      console.log(cellVal, correspondingCol, correspondingColName, isAtt); 
+      if (isAtt) {
+        app.rowFilter[correspondingCol] = cellVal
+      }
+    });
+    app.drillDown();
+  })
+}
+
+app.drillDown = function() {
+  var subSet = [];
+  subSet[0] = app.data[0];
+  var unfilteredDataRows = [];
+  _.each(this.data, function(row, index) {
+    // only run if not the header row
+    if (index) {
+      var tempRowObj = {};
+      _.each(row, function(cell, i) {
+        tempRowObj[i] = cell;
+      });
+      unfilteredDataRows.push(tempRowObj);
+    }
+  });
+  var filteredResults = _.where(unfilteredDataRows, app.rowFilter) 
+  _.each(filteredResults, function(rowObj) {
+    subSet.push(_.toArray(rowObj));
+  });
+  this.drawSubReport(subSet);
+}
+
+app.drawSubReport = function(subSet) {
+  var $table = $('#sub-report').empty();
+  _.each(subSet, function(row, i) {
+    if (i === 0) {
+      var $newRow = $('<tr />')
+      _.each(row, function(cell) {
+        $newRow.append($('<th />').text(cell));
+      });
+      $newRow.appendTo($table); 
+    } else {      
+      var $newRow = $('<tr />')
+      _.each(row, function(cell) {
+        $newRow.append($('<td />').text(cell));
+      });
+      $newRow.appendTo($table);
+    }
   });
 }
 
