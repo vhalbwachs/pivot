@@ -102,6 +102,9 @@ app.rowSummarizer = function() {
 }
 
 app.drawTable = function (tableArray, returnedColOrder) {
+  var numberWithCommas = function (x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  };
   this.drawAvailableColHeaders();
   var $tbody = $('tbody').empty();
   var $thead = $('.colHeaders').empty();
@@ -116,7 +119,7 @@ app.drawTable = function (tableArray, returnedColOrder) {
   _.each(tableArray, function(row) {
     var $row = $('<tr />');
     _.each(row, function(cell) {
-      $('<td />').text(cell)
+      $('<td />').text(numberWithCommas(cell))
                  .appendTo($row);
     });
     $row.appendTo($('tbody'));
@@ -162,6 +165,9 @@ app.drillDown = function() {
 }
 
 app.drawSubReport = function(subSet) {
+  var numberWithCommas = function (x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  };
   var $table = $('#sub-report').empty();
   _.each(subSet, function(row, i) {
     if (i === 0) {
@@ -173,7 +179,7 @@ app.drawSubReport = function(subSet) {
     } else {      
       var $newRow = $('<tr />')
       _.each(row, function(cell) {
-        $newRow.append($('<td />').text(cell));
+        $newRow.append($('<td />').text(numberWithCommas(cell)));
       });
       $newRow.appendTo($table);
     }
